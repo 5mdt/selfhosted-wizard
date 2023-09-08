@@ -1,0 +1,15 @@
+---
+dependencies:
+  - name: geerlingguy.github-users
+galaxy_info:
+  author: "Vladimir @nett00n Budylnikov"
+  company: "5mdt.tk"
+  description: "Framework for deploying OSS selfhosted services"
+  license: MIT
+  min_ansible_version: 2.9.9
+  namespace: nett00n
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy

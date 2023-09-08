@@ -1,0 +1,23 @@
+---
+networks:
+  traefik_default:
+    external: true
+services:
+  app:
+    container_name: yacht_app
+    image: "selfhostedpro/yacht:{{ deploy_yacht_version }}"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.enable: true
+      traefik.http.routers.yacht.entrypoints: websecure
+      traefik.http.routers.yacht.rule: Host(`{{ deploy_yacht_hostname }}`)
+      traefik.http.routers.yacht.service: yacht
+      traefik.http.routers.yacht.tls: true
+      traefik.http.routers.yacht.tls.certresolver: le
+      traefik.http.services.yacht.loadbalancer.server.port: 8000
+    networks:
+      - traefik_default
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/yacht/:/config
+version: "3"

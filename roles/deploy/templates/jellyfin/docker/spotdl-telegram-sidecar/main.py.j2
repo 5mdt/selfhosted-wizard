@@ -1,0 +1,95 @@
+import re
+import logging
+import base64
+import requests
+import os
+from dotenv import load_dotenv
+from aiogram import Bot, Dispatcher, types
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
+from aiogram.dispatcher.filters import Text
+import httpx
+import spotipy
+
+# Set up logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Fetch environment variables from .env file or system environment
+SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
+SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+
+# Spotify regular expressions
+PLAYLIST_REGEX = r"https://open.spotify.com/playlist/([\w\d]+)"
+ALBUM_REGEX = r"https://open.spotify.com/album/([\w\d]+)"
+ARTIST_REGEX = r"https://open.spotify.com/artist/([\w\d]+)"
+TRACK_REGEX = r"https://open.spotify.com/track/([\w\d]+)"
+async def get_access_token():
+    url = 'https://accounts.spotify.com/api/token'
+    headers = {
+        'Authorization': f'Basic {base64.b64encode((SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET).encode()).decode()}',
+    }
+    data = {
+        'grant_type': 'client_credentials',
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, headers=headers, data=data)
+        if response.status_code == 200:
+            return response.json()['access_token']
+        else:
+            raise ValueError('Failed to get Spotify access token')
+
+
+async def extract_spotify_info(link):
+    access_token = await get_access_token()
+    url = "https://api.spotify.com/v1"
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    async with httpx.AsyncClient() as client:
+        playlist_match = re.match(PLAYLIST_REGEX, link)
+        if playlist_match:
+            playlist_id = playlist_match.group(1)
+            playlist_url = f"{url}/playlists/{playlist_id}"
+            response = await client.get(playlist_url, headers=headers)
+            if response.status_code == 200:
+                playlist_info = response.json()
+                return f"Playlist Name: {playlist_info['name']}"
+            else:
+                return "Sorry, I couldn't retrieve the information from the provided Spotify link."
+
+        # Rest of the code remains the same...
+
+
+async def on_start(message: types.Message):
+    await message.answer("Hi! Send me a Spotify link, and I'll tell you the details.")
+
+
+async def on_message(message: types.Message):
+    link = message.text.strip()
+    response = await extract_spotify_info(link)
+    await message.answer(response)
+
+
+async def main():
+    if not all([SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, TELEGRAM_BOT_TOKEN]):
+        raise ValueError("Required environment variables are not set.")
+
+    bot = Bot(token=TELEGRAM_BOT_TOKEN)
+    dp = Dispatcher(bot)
+    dp.middleware.setup(LoggingMiddleware())
+
+    dp.register_message_handler(on_start, commands=["start"])
+    dp.register_message_handler(on_message, content_types=Text)
+
+    await dp.start_polling()
+    await dp.idle()
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    asyncio.run(main())

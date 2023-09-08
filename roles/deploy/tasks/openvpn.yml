@@ -1,0 +1,29 @@
+---
+# x86_64
+
+# Placeholder
+# TODO
+# - Download https://github.com/nett00n/docker-openvpn
+
+- name: Create directory for openvpn
+  ansible.builtin.file:
+    dest: /opt/openvpn/
+    state: directory
+    mode: 0744
+    owner: root
+
+- name: Generate docker-compose file for openvpn
+  ansible.builtin.template:
+    dest: /opt/openvpn/docker-compose.yml
+    validate: docker-compose -f %s pull
+    mode: 0644
+    owner: root
+    src: openvpn/docker-compose.yml
+
+
+- name: Deploy openvpn
+  community.docker.docker_compose:
+    project_src: /opt/openvpn
+    remove_orphans: true
+    state: present
+    build: true

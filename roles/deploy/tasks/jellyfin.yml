@@ -1,0 +1,38 @@
+---
+# x86_64
+
+- name: Create directory for jellyfin
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    mode: 0744
+    owner: root
+    state: directory
+  loop:
+    - /opt/jellyfin/docker/spotdl-telegram-sidecar
+
+
+- name: Generate docker-compose file for jellyfin
+  ansible.builtin.template:
+    dest: "/opt/{{ item.dest }}"
+    mode: 0644
+    owner: root
+    src: "{{ item.src }}"
+  loop:
+    - src: jellyfin/docker-compose.yml.j2
+      dest: jellyfin/docker-compose.yml
+    - src: jellyfin/env.j2
+      dest: jellyfin/.env
+    - src: jellyfin/docker/spotdl-telegram-sidecar/Dockerfile.j2
+      dest: jellyfin/docker/spotdl-telegram-sidecar/Dockerfile
+    - src: jellyfin/docker/spotdl-telegram-sidecar/main.py.j2
+      dest: jellyfin/docker/spotdl-telegram-sidecar/main.py
+    - src: jellyfin/docker/spotdl-telegram-sidecar/requirements.txt.j2
+      dest: jellyfin/docker/spotdl-telegram-sidecar/requirements.txt
+
+
+- name: Deploy jellyfin
+  community.docker.docker_compose:
+    project_src: /opt/jellyfin
+    remove_orphans: true
+    build: true
+    state: present

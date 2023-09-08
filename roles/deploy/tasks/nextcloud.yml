@@ -1,0 +1,24 @@
+---
+# x86_64
+# aarch64
+
+- name: Create directory for nextcloud
+  ansible.builtin.file:
+    dest: /opt/nextcloud/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Generate docker-compose file for nextcloud
+  ansible.builtin.template:
+    dest: /opt/nextcloud/docker-compose.yml
+    mode: 0644
+    owner: root
+    validate: docker-compose -f %s pull
+    src: nextcloud/docker-compose.yml.j2
+
+- name: Deploy nextcloud
+  community.docker.docker_compose:
+    project_src: /opt/nextcloud
+    remove_orphans: true
+    state: present

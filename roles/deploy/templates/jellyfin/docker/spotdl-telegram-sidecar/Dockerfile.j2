@@ -1,0 +1,7 @@
+FROM python:3
+COPY requirements.txt /app/
+RUN pip install -r /app/requirements.txt
+RUN spotdl --download-ffmpeg
+WORKDIR /music
+COPY main.py /app
+CMD python /app/main.py

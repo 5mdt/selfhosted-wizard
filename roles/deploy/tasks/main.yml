@@ -1,0 +1,156 @@
+---
+# Obligatory services
+
+- name: Include traefik
+  ansible.builtin.import_tasks: traefik.yml
+  tags:
+    - deploy_services
+    - deploy_traefik
+  when: deploy_traefik | bool
+
+- name: Include watchtower
+  ansible.builtin.import_tasks: watchtower.yml
+  tags:
+    - deploy_services
+    - deploy_watchtower
+
+# Stateful applications
+
+- name: Include blocky
+  ansible.builtin.import_tasks: blocky.yml
+  tags:
+    - deploy_services
+    - deploy_blocky
+  when: deploy_blocky | bool
+
+- name: Include castopod
+  ansible.builtin.import_tasks: castopod.yml
+  tags:
+    - deploy_castopod
+    - deploy_services
+  when: deploy_castopod | bool
+
+- name: Include cronicle
+  ansible.builtin.import_tasks: cronicle.yml
+  tags:
+    - deploy_cronicle
+    - deploy_services
+  when: deploy_cronicle | bool
+
+- name: Include freshrss
+  ansible.builtin.import_tasks: freshrss.yml
+  tags:
+    - deploy_services
+    - deploy_freshrss
+  when: deploy_freshrss | bool
+
+- name: Include homepage
+  ansible.builtin.import_tasks: homepage.yml
+  tags:
+    - deploy_services
+    - deploy_homepage
+  when: deploy_homepage | bool
+
+- name: Include immich
+  ansible.builtin.import_tasks: immich.yml
+  tags:
+    - deploy_services
+    - deploy_immich
+  when: deploy_immich | bool
+
+- name: Include jellyfin
+  ansible.builtin.import_tasks: jellyfin.yml
+  tags:
+    - deploy_services
+    - deploy_jellyfin
+  when: deploy_jellyfin | bool
+
+- name: Include joplin
+  ansible.builtin.import_tasks: joplin.yml
+  tags:
+    - deploy_services
+    - deploy_joplin
+  when: deploy_joplin | bool
+
+- name: Include n8n
+  ansible.builtin.import_tasks: n8n.yml
+  tags:
+    - deploy_services
+    - deploy_n8n
+  when: deploy_n8n | bool
+
+- name: Include nextcloud
+  ansible.builtin.import_tasks: nextcloud.yml
+  tags:
+    - deploy_nextcloud
+    - deploy_services
+  when: deploy_nextcloud | bool
+
+- name: Include openvpn
+  ansible.builtin.import_tasks: openvpn.yml
+  tags:
+    - deploy_services
+    - deploy_openvpn
+  when: deploy_openvpn | bool
+
+- name: Include semaphore
+  ansible.builtin.import_tasks: semaphore.yml
+  tags:
+    - deploy_services
+    - deploy_semaphore
+  when: deploy_semaphore | bool
+
+- name: Include tgvkbot
+  ansible.builtin.import_tasks: tgvkbot.yml
+  tags:
+    - deploy_services
+    - deploy_tgvkbot
+  when: deploy_tgvkbot | bool
+
+- name: Include vaultwarden
+  ansible.builtin.import_tasks: vaultwarden.yml
+  tags:
+    - deploy_services
+    - deploy_vaultwarden
+  when: deploy_vaultwarden | bool
+
+- name: Include yacht
+  ansible.builtin.import_tasks: yacht.yml
+  tags:
+    - deploy_services
+    - deploy_yacht
+  when: deploy_yacht | bool
+
+# stateless applications
+
+- name: Include glances
+  ansible.builtin.import_tasks: glances.yml
+  tags:
+    - deploy_glances
+    - deploy_services
+
+- name: Include rss_bridge
+  ansible.builtin.import_tasks: rss_bridge.yml
+  tags:
+    - deploy_services
+    - deploy_rss_bridge
+  when: deploy_rss_bridge | bool
+
+- name: Include redirects
+  ansible.builtin.import_tasks: redirects.yml
+  tags:
+    - deploy_services
+    - deploy_redirects
+
+- name: Include socks5_proxy
+  ansible.builtin.import_tasks: socks5_proxy.yml
+  tags:
+    - deploy_services
+    - deploy_socks5_proxy_proxy
+
+- name: Include yopass
+  ansible.builtin.import_tasks: yopass.yml
+  tags:
+    - deploy_services
+    - deploy_yopass
+  when: deploy_yopass | bool

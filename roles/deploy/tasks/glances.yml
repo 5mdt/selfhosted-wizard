@@ -1,0 +1,40 @@
+---
+# x86_64
+# aarch64
+
+- name: Set deploy to true if needed for glances
+  ansible.builtin.set_fact:
+    deploy_glances_state: present
+  when: deploy_glances | bool
+
+- name: Deploy glances
+  community.docker.docker_compose:
+    state: "{{ deploy_glances_state }}"
+    project_name: glances
+    remove_orphans: true
+    definition:
+      version: '3'
+      networks:
+        traefik_default:
+          external: true
+      services:
+        glances:
+          container_name: glances_app
+          environment:
+            - TZ=Europe/Paris
+            - GLANCES_OPT=--websecure.rver
+          image: "joweisberg/glances:{{ deploy_glances_version }}"
+          labels:
+            com.centurylinklabs.watchtower.enable: 'true'
+            traefik.enable: true
+            traefik.http.routers.glances.entrypoints: websecure
+            traefik.http.routers.glances.rule: Host(`{{ deploy_glances_hostname }}`)
+            traefik.http.routers.glances.service: glances
+            traefik.http.routers.glances.tls: true
+            traefik.http.routers.glances.tls.certresolver: le
+            traefik.http.services.glances.loadbalancer.server.port: 61208
+          networks:
+            - traefik_default
+          restart: always
+          volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro

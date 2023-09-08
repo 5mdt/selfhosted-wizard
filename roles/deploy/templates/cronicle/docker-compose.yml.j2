@@ -1,0 +1,43 @@
+---
+version: "3"
+networks:
+  traefik_default:
+    external: true
+services:
+  app:
+    healthcheck:
+      interval: 5s
+      retries: 3
+      test:
+          - "CMD-SHELL"
+          - "wget --no-verbose --tries=1 --spider localhost:3012/api/app/ping || exit 1"
+      timeout: 1s
+    hostname: cronicle
+    image: "bluet/cronicle-docker:{{ deploy_cronicle_version }}"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.docker.network: traefik_default
+      traefik.enable: true
+      traefik.http.routers.cronicle.entrypoints: websecure
+      traefik.http.routers.cronicle.rule: Host(`{{ deploy_cronicle_hostname }}`)
+      traefik.http.routers.cronicle.service: cronicle
+      traefik.http.routers.cronicle.tls: true
+      traefik.http.routers.cronicle.tls.certresolver: le
+      traefik.http.services.cronicle.loadbalancer.server.port: 3012
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    networks:
+      - traefik_default
+    restart: always
+    tmpfs:
+      - /opt/cronicle/logs/
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /opt/cronicle/data/data:/opt/cronicle/data:rw
+      - /opt/cronicle/data/logs:/opt/cronicle/logs:rw
+      - /opt/cronicle/data/plugins:/opt/cronicle/plugins:rw
+      - /opt/cronicle/entrypoint-override.sh:/entrypoint-override.sh

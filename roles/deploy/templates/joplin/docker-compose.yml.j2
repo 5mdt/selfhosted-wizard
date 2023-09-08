@@ -1,0 +1,54 @@
+---
+version: "3"
+networks:
+  joplin:
+  traefik_default:
+    external: true
+services:
+  app:
+    depends_on:
+      - db
+    environment:
+      APP_BASE_URL: https://{{ deploy_joplin_hostname }}
+      APP_PORT: 22300
+      DB_CLIENT: pg
+      POSTGRES_DATABASE: joplin
+      POSTGRES_HOST: db
+      POSTGRES_PASSWORD: joplin
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: joplin
+    image: "joplin/server:{{ deploy_joplin_version }}"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.enable: true
+      traefik.http.routers.joplin-rtr.entrypoints: websecure
+      traefik.http.routers.joplin-rtr.rule: Host(`{{ deploy_joplin_hostname }}`)
+      traefik.http.routers.joplin-rtr.service: joplin-svc
+      traefik.http.routers.joplin-rtr.tls: true
+      traefik.http.services.joplin-svc.loadbalancer.server.port: 22300
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    networks:
+      - traefik_default
+    restart: always
+  db:
+    environment:
+      POSTGRES_DB: joplin
+      POSTGRES_PASSWORD: joplin
+      POSTGRES_USER: joplin
+    image: "postgres:13.3"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    networks:
+      - traefik_default
+    restart: always
+    volumes:
+      - /opt/joplin/joplin-data:/var/lib/postgresql/data

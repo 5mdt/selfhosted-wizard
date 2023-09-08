@@ -1,0 +1,37 @@
+---
+# x86_64
+
+- name: Get public server IP
+  ansible.builtin.uri:
+    url: http://ifcfg.me
+    method: GET
+    return_content: true
+  register: public_server_ip
+  check_mode: false
+  changed_when: false
+
+- name: Create directory for semaphore
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    mode: 0744
+    owner: root
+    state: directory
+  loop:
+    - /opt/semaphore/
+
+- name: Generate docker-compose file for semaphore
+  ansible.builtin.template:
+    dest: "/opt/{{ item.dest }}"
+    mode: 0644
+    owner: root
+    src: "{{ item.src }}"
+  loop:
+    - src: semaphore/docker-compose.yml.j2
+      dest: semaphore/docker-compose.yml
+
+- name: Deploy semaphore
+  community.docker.docker_compose:
+    project_src: /opt/semaphore
+    remove_orphans: true
+    build: true
+    state: present

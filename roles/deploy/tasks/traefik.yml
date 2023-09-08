@@ -1,0 +1,32 @@
+---
+# x86_64
+# aarch64
+
+- name: Ensure traefik dir exists for traefik
+  ansible.builtin.file:
+    dest: /opt/traefik
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Ensure traefik le acme.json exists for traefik
+  ansible.builtin.file:
+    dest: /opt/traefik/acme.json
+    mode: 0600
+    owner: root
+    state: touch
+  changed_when: false
+
+- name: Generate docker-compose file for Traefik
+  ansible.builtin.template:
+    dest: /opt/traefik/docker-compose.yml
+    mode: 0644
+    owner: root
+    validate: docker-compose -f %s pull
+    src: traefik/docker-compose.yml.j2
+
+- name: Deploy traefik
+  community.docker.docker_compose:
+    project_src: /opt/traefik
+    remove_orphans: true
+    state: present

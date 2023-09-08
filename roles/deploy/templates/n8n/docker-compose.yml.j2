@@ -1,0 +1,56 @@
+---
+version: "3"
+networks:
+  traefik_default:
+    external: true
+services:
+  app:
+    command: /bin/sh -c "n8n start --tunnel"
+    depends_on:
+      - postgres
+    environment:
+      DB_POSTGRESDB_DATABASE: n8n_db
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PASSWORD: "{{ deploy_n8n_pg_password }}"
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_USER: postgres
+      DB_TYPE: postgresdb
+    image: "n8nio/n8n:{{ deploy_n8n_version }}"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.enable: true
+      traefik.http.routers.n8n.entrypoints: websecure
+      traefik.http.routers.n8n.rule: Host(`{{ deploy_n8n_hostname }}`)
+      traefik.http.routers.n8n.tls: true
+      traefik.http.routers.n8n.tls.certresolver: le
+    links:
+      - postgres
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    networks:
+      - traefik_default
+    restart: always
+    volumes:
+      - /opt/n8n/storage:/home/node/
+  postgres:
+    environment:
+      POSTGRES_DB: n8n_db
+      POSTGRES_PASSWORD: "{{ deploy_n8n_pg_password }}"
+      POSTGRES_USER: postgres
+    image: "postgres:11"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    networks:
+      - traefik_default
+    restart: always
+    volumes:
+      - /opt/n8n/db_storage:/var/lib/postgresql/data
+      - /opt/n8n/init-data.sh:/docker-entrypoint-initdb.d/init-data.sh

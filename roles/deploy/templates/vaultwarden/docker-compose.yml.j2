@@ -1,0 +1,26 @@
+---
+version: "3"
+networks:
+  traefik_default:
+    external: true
+services:
+  app:
+    container_name: vaultwarden_app
+    image: "vaultwarden/server:{{ deploy_vaultwarden_version }}"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.enable: true
+      traefik.http.routers.vaultwarden.entrypoints: websecure
+      traefik.http.routers.vaultwarden.rule: Host(`{{ deploy_vaultwarden_hostname }}`)
+      traefik.http.routers.vaultwarden.tls: true
+      traefik.http.routers.vaultwarden.tls.certresolver: le
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    networks:
+      - traefik_default
+    restart: always
+    volumes:
+      - /opt/vaultwarden/data:/data/

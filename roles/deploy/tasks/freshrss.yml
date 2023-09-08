@@ -1,0 +1,29 @@
+---
+# x86_64
+# aarch64
+
+- name: Override the foo variable for aarch64 processors
+  ansible.builtin.set_fact:
+    deploy_freshrss_version: "arm"
+  when: ansible_architecture == "aarch64" and deploy_freshrss_version == "latest"
+
+- name: Create directory for freshrss
+  ansible.builtin.file:
+    dest: /opt/freshrss/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Generate docker-compose file for freshrss
+  ansible.builtin.template:
+    dest: /opt/freshrss/docker-compose.yml
+    mode: 0644
+    owner: root
+    validate: docker-compose -f %s pull
+    src: freshrss/docker-compose.yml.j2
+
+- name: Deploy freshrss
+  community.docker.docker_compose:
+    project_src: /opt/freshrss
+    remove_orphans: true
+    state: present

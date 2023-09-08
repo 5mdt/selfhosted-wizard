@@ -1,0 +1,33 @@
+---
+# x86_64
+# aarch64
+
+- name: Create directory for blocky
+  ansible.builtin.file:
+    dest: /opt/blocky/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Ensure config.yml exists for blocky
+  ansible.builtin.copy:
+    dest: /opt/blocky/config.yml
+    mode: 0644
+    owner: root
+    content: "{{ deploy_blocky_config }}"
+    force: true
+  changed_when: false
+
+- name: Generate docker-compose file for blocky
+  ansible.builtin.template:
+    dest: /opt/blocky/docker-compose.yml
+    mode: 0644
+    owner: root
+    validate: docker-compose -f %s pull
+    src: blocky/docker-compose.yml.j2
+
+- name: Deploy blocky
+  community.docker.docker_compose:
+    project_src: /opt/blocky
+    remove_orphans: true
+    state: present

@@ -1,0 +1,30 @@
+---
+version: "3"
+services:
+  bot:
+    container_name: tgvkbot
+    depends_on:
+      - db
+    image: "kylmakalle/tgvkbot:{{ deploy_tgvkbot_version }}"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    restart: always
+  db:
+    container_name: tgvkbot_db
+    environment:
+      POSTGRES_DB: "tgvkbot"
+      POSTGRES_PASSWORD: "postgres"
+    image: "postgres:9.6.24-alpine"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    restart: always
+    volumes:
+      - "/opt/tgvkbot/dbdata:/var/lib/postgresql/data"

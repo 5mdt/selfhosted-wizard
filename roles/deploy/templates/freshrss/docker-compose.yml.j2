@@ -1,0 +1,49 @@
+---
+version: "3"
+networks:
+  freshrss:
+  traefik_default:
+    external: true
+services:
+  app:
+    container_name: freshrss_app
+    depends_on:
+      - db
+    environment:
+      CRON_MIN: "*/20"
+      TZ: Europe/Moscow
+    image: "freshrss/freshrss:{{ deploy_freshrss_version }}"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.docker.network: traefik_default
+      traefik.enable: true
+      traefik.http.routers.reader.entrypoints: websecure
+      traefik.http.routers.reader.rule: Host(`{{ deploy_freshrss_hostname }}`)
+      traefik.http.routers.reader.tls: true
+      traefik.http.routers.reader.tls.certresolver: le
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    networks:
+      - traefik_default
+      - freshrss
+    restart: always
+    volumes:
+      - /opt/freshrss/data/freshrss_data:/var/www/FreshRSS/data
+      - /opt/freshrss/data/freshrss_extensions:/var/www/FreshRSS/extensions
+  db:
+    container_name: freshrss_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-freshrss}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-freshrss}
+      POSTGRES_USER: ${POSTGRES_USER:-freshrss}
+    image: "postgres:12-alpine"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    networks:
+      - freshrss
+    restart: always
+    volumes:
+      - /opt/freshrss/data/db:/var/lib/postgresql/data

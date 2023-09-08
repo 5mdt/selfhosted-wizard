@@ -1,0 +1,23 @@
+---
+# x86_64
+
+- name: Create directory for joplin
+  ansible.builtin.file:
+    dest: /opt/joplin/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Generate docker-compose file for joplin
+  ansible.builtin.template:
+    dest: /opt/joplin/docker-compose.yml
+    mode: 0644
+    owner: root
+    validate: docker-compose -f %s pull
+    src: joplin/docker-compose.yml.j2
+
+- name: Deploy joplin
+  community.docker.docker_compose:
+    project_src: /opt/joplin
+    remove_orphans: true
+    state: present

@@ -1,0 +1,21 @@
+---
+# x86_64
+# aarch64
+
+- name: Set deploy to true if needed for redirects
+  ansible.builtin.set_fact:
+    deploy_redirects_state: present
+  when: deploy_redirects | bool
+
+- name: Deploy redirects
+  community.docker.docker_compose:
+    definition:
+      services:
+        redirects:
+          container_name: redirects_app
+          image: "traefik/whoami"
+          labels: "{{ deploy_redirects_labels }}"
+      version: "3"
+    project_name: redirects
+    remove_orphans: true
+    state: "{{ deploy_redirects_state }}"

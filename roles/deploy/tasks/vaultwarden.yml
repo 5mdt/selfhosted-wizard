@@ -1,0 +1,24 @@
+---
+# x86_64
+# aarch64
+
+- name: Create directory for vaultwarden
+  ansible.builtin.file:
+    dest: /opt/vaultwarden/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Generate docker-compose file for vaultwarden
+  ansible.builtin.template:
+    dest: /opt/vaultwarden/docker-compose.yml
+    validate: docker-compose -f %s pull
+    mode: 0644
+    owner: root
+    src: vaultwarden/docker-compose.yml.j2
+
+- name: Deploy vaultwarden
+  community.docker.docker_compose:
+    project_src: /opt/vaultwarden
+    remove_orphans: true
+    state: present

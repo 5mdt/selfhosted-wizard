@@ -1,0 +1,6 @@
+.*
+*.retry
+*.log
+!.gitignore
+!.pre-commit-config.yaml
+!.yamllint

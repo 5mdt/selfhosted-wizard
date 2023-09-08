@@ -1,0 +1,22 @@
+---
+# - name: Disable torrents
+#   ansible.builtin.iptables:
+#     table: nat
+#     chain: FORWARD
+#     in_interface: eth0
+#     protocol: tcp
+#     match: tcp
+#     destination_port: 80
+#     jump: REDIRECT
+#     to_ports: 8600
+#     comment: Redirect web traffic to port 8600
+#   become: yes
+
+# iptables -A FORWARD -m string --algo bm --string "BitTorrent" -j DROP
+# iptables -A FORWARD -m string --algo bm --string "BitTorrent protocol" -j DROP
+# iptables -A FORWARD -m string --algo bm --string "peer_id=" -j DROP
+# iptables -A FORWARD -m string --algo bm --string "announce.php?passkey=" -j DROP
+# iptables -A FORWARD -m string --algo bm --string "torrent" -j DROP
+# iptables -A FORWARD -m string --algo bm --string "announce" -j DROP
+# iptables -A FORWARD -m string --algo bm --string "info_hash" -j DROP
+# # iptables -A FORWARD -m string --algo bm --string ".torrent" -j DROP

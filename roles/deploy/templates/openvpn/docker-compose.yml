@@ -1,0 +1,19 @@
+---
+version: "3"
+services:
+  server:
+    build: /opt/openvpn/
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    ports:
+      - 1194:1194/udp
+    restart: always
+    volumes:
+      - /opt/openvpn/data:/etc/openvpn

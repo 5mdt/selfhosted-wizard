@@ -1,0 +1,24 @@
+---
+# x86_64
+# aarch64
+
+- name: Create directory for yacht
+  ansible.builtin.file:
+    dest: /opt/yacht/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Generate docker-compose file for yacht
+  ansible.builtin.template:
+    dest: /opt/yacht/docker-compose.yml
+    mode: 0644
+    owner: root
+    validate: docker-compose -f %s pull
+    src: yacht/docker-compose.yml.j2
+
+- name: Deploy yacht
+  community.docker.docker_compose:
+    project_src: /opt/yacht
+    remove_orphans: true
+    state: present

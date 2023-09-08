@@ -1,0 +1,53 @@
+---
+# x86_64
+# aarch64
+
+
+- name: Create directory for rss-bridge
+  ansible.builtin.file:
+    dest: /opt/rss-bridge/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Generate config for rss-bridge
+  ansible.builtin.copy:
+    content: "{{ deploy_rss_bridge_whitelist }}"
+    dest: /opt/rss-bridge/whitelist.txt
+    mode: 0644
+    owner: root
+
+- name: Generate docker-compose file for rss-bridge
+  ansible.builtin.copy:
+    dest: /opt/rss-bridge/docker-compose.yml
+    mode: 0644
+    owner: root
+    validate: docker-compose -f %s pull
+    content: |
+      ---
+      version: "3"
+      networks:
+        traefik_default:
+          external: true
+      services:
+        app:
+          container_name: rss_bridge_app
+          image: "rssbridge/rss-bridge:{{ deploy_rss_bridge_version }}"
+          labels:
+            com.centurylinklabs.watchtower.enable: "true"
+            traefik.enable: true
+            traefik.http.routers.rss-bridge.entrypoints: websecure
+            traefik.http.routers.rss-bridge.rule: Host(`{{ deploy_rss_bridge_hostname }}`)
+            traefik.http.routers.rss-bridge.tls: true
+            traefik.http.routers.rss-bridge.tls.certresolver: le
+          networks:
+            - traefik_default
+          restart: always
+          volumes:
+            - /opt/rss-bridge/whitelist.txt:/app/whitelist.txt:ro
+
+- name: Deploy rss_bridge
+  community.docker.docker_compose:
+    project_src: /opt/rss-bridge
+    remove_orphans: true
+    state: present

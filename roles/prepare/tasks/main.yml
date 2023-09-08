@@ -1,0 +1,25 @@
+---
+- name: Include hostname update
+  ansible.builtin.import_tasks: hostname.yml
+  tags:
+    - prepare_hostname
+
+- name: Include packages install
+  ansible.builtin.import_tasks: packages.yml
+  tags:
+    - prepare_packages
+
+- name: Include motd config
+  ansible.builtin.import_tasks: motd.yml
+  tags:
+    - prepare_motd
+
+- name: Include docker-prepare job
+  ansible.builtin.import_tasks: docker-prepare.yml
+  tags:
+    - prepare_docker_prepare
+
+- name: Iptables
+  ansible.builtin.import_tasks: iptables.yml
+  tags:
+    - prepare_iptables

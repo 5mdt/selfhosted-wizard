@@ -1,0 +1,31 @@
+---
+# x86_64
+# aarch64
+
+- name: Create directory for cronicle
+  ansible.builtin.file:
+    dest: /opt/cronicle/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Generate docker-compose file for cronicle
+  ansible.builtin.template:
+    src: cronicle/docker-compose.yml.j2
+    dest: /opt/cronicle/docker-compose.yml
+    mode: 0644
+    owner: root
+    validate: docker-compose -f %s pull
+
+- name: Generate override for entrypoint
+  ansible.builtin.template:
+    src: cronicle/entrypoint-override.sh
+    dest: /opt/cronicle/entrypoint-override.sh
+    mode: 0744
+    owner: root
+
+- name: Deploy cronicle
+  community.docker.docker_compose:
+    project_src: /opt/cronicle
+    remove_orphans: true
+    state: present

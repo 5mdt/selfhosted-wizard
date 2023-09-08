@@ -1,0 +1,7 @@
+---
+- name: Install py docker
+  ansible.builtin.pip:
+    name: "{{ item }}"
+  loop:
+    - docker
+    - docker-compose

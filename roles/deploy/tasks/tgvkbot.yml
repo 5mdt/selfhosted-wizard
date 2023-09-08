@@ -1,0 +1,29 @@
+---
+
+- name: Create directory for tgvkbot
+  ansible.builtin.file:
+    dest: /opt/tgvkbot/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Generate config for tgvkbot
+  ansible.builtin.copy:
+    dest: /opt/tgvkbot/.env
+    mode: 0744
+    owner: root
+    content: "{{ deploy_tgvkbot_environment }}"
+
+- name: Generate docker-compose file for tgvkbot
+  ansible.builtin.template:
+    dest: /opt/tgvkbot/docker-compose.yml
+    mode: 0644
+    owner: root
+    validate: docker-compose -f %s pull
+    src: tgvkbot/docker-compose.yml.j2
+
+- name: Deploy tgvkbot
+  community.docker.docker_compose:
+    project_src: /opt/tgvkbot
+    remove_orphans: true
+    state: present

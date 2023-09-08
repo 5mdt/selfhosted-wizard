@@ -1,0 +1,30 @@
+---
+
+- name: Remove users
+  ansible.builtin.user:
+    name: ubuntu
+    remove: true
+    state: absent
+
+- name: Remove packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - snapd
+
+- name: Remove groups
+  ansible.builtin.group:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - administrators
+
+- name: Remove files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/etc/iptables/rules.v4"
+    - "/etc/iptables/rules.v6"
+    - "/etc/sudoers.d/95-administrators"

@@ -1,0 +1,32 @@
+---
+version: '3'
+networks:
+  traefik_default:
+    external: true
+services:
+  app:
+    environment:
+      - TZ=Europe/Moscow
+    image: spx01/blocky:{{ deploy_blocky_version }}
+    labels:
+      com.centurylinklabs.watchtower.enable: 'true'
+      traefik.enable: true
+      traefik.http.routers.blocky.entrypoints: websecure
+      traefik.http.routers.blocky.rule: Host(`{{ deploy_blocky_hostname }}`)
+      traefik.http.routers.blocky.service: blocky
+      traefik.http.routers.blocky.tls: true
+      traefik.http.routers.blocky.tls.certresolver: le
+      traefik.http.services.blocky.loadbalancer.server.port: 80
+    logging:
+      driver: json-file
+      options:
+        max-file: '3'
+        max-size: 1m
+    networks:
+      - traefik_default
+    ports:
+      - {{ ansible_default_ipv4.address }}:53:53/tcp
+      - {{ ansible_default_ipv4.address }}:53:53/udp
+    restart: always
+    volumes:
+      - /opt/blocky/config.yml:/app/config.yml

@@ -1,0 +1,36 @@
+---
+- name: Install landscape-common
+  ansible.builtin.apt:
+    name: landscape-common
+    state: present
+
+- name: Remove motd files
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/update-motd.d/10-help-text
+    - /etc/update-motd.d/50-motd-news
+    - /etc/update-motd.d/60-unminimize
+    - /etc/update-motd.d/91-release-upgrade
+    - /etc/update-motd.d/95-hwe-eol
+
+- name: Create own motd header
+  ansible.builtin.copy:
+    dest: "/etc/update-motd.d/00-header"
+    mode: 0644
+    owner: root
+    content: |
+      echo "Welcome to `hostname`"
+      echo "OS: `source /etc/os-release; echo $VERSION`"
+      echo "Kernel: `uname -o; uname -r; uname -m`"
+
+- name: Ensure PrintMotd is turned on
+  ansible.builtin.lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    line: "{{ item.line }}"
+    regexp: "{{ item.regexp }}"
+    state: present
+  loop:
+    - regexp: "^PrintMotd "
+      line: "PrintMotd yes"

@@ -1,0 +1,42 @@
+---
+# x86_64
+# aarch64
+
+- name: Create directory for homepage
+  ansible.builtin.file:
+    dest: /opt/homepage/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Generate configs for homepage
+  ansible.builtin.copy:
+    content: "{{ item.content }}"
+    dest: "/opt/homepage/{{ item.filename }}"
+    mode: 0744
+    owner: root
+  loop:
+    - content: "{{ deploy_homepage_services }}"
+      filename: services.yaml
+    - content: "{{ deploy_homepage_bookmarks }}"
+      filename: bookmarks.yaml
+    - content: "{{ deploy_homepage_docker }}"
+      filename: docker.yaml
+    - content: "{{ deploy_homepage_widgets }}"
+      filename: widgets.yaml
+    - content: "{{ deploy_homepage_settings }}"
+      filename: settings.yaml
+
+- name: Generate docker-compose file for homepage
+  ansible.builtin.template:
+    dest: /opt/homepage/docker-compose.yml
+    mode: 0644
+    owner: root
+    validate: docker-compose -f %s pull
+    src: homepage/docker-compose.yml.j2
+
+- name: Deploy homepage
+  community.docker.docker_compose:
+    project_src: /opt/homepage
+    remove_orphans: true
+    state: present

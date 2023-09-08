@@ -1,0 +1,29 @@
+---
+# x86_64
+# aarch64
+
+- name: Set deploy to true if needed for watchtower
+  ansible.builtin.set_fact:
+    deploy_watchtower_state: present
+  when: deploy_watchtower | bool
+
+- name: Deploy watchtower
+  community.docker.docker_compose:
+    definition:
+      services:
+        app:
+          environment:
+            WATCHTOWER_CLEANUP: "true"
+            WATCHTOWER_INCLUDE_RESTARTING: "true"
+            WATCHTOWER_LABEL_ENABLE: "true"
+          image: "containrrr/watchtower:{{ deploy_watchtower_version }}"
+          labels:
+            com.centurylinklabs.watchtower.enable: "true"
+          restart: always
+          volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /etc/timezone:/etc/timezone:ro
+      version: "3"
+    project_name: watchtower
+    remove_orphans: true
+    state: "{{ deploy_watchtower_state }}"

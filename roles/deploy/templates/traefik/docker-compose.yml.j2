@@ -1,0 +1,41 @@
+---
+version: "3"
+services:
+  app:
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesResolvers.le.acme.email={{ deploy_trefik_email }}
+      - --certificatesResolvers.le.acme.storage=acme.json
+      - --certificatesResolvers.le.acme.tlsChallenge=true
+      - --certificatesResolvers.le.acme.httpChallenge=true
+      - --certificatesResolvers.le.acme.httpChallenge.entryPoint=web
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --providers.docker.network=traefik_default1
+    image: "traefik:{{ deploy_traefik_version }}"
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.enable: true
+      traefik.http.middlewares.basic-auth-global.basicauth.users: "{{ traefik_basic_auth_users }}"
+      traefik.http.routers.traefik_https.entrypoints: websecure
+      traefik.http.routers.traefik_https.middlewares: basic-auth-global
+      traefik.http.routers.traefik_https.rule: Host(`{{ deploy_traefik_hostname }}`)
+      traefik.http.routers.traefik_https.service: api@internal
+      traefik.http.routers.traefik_https.tls: true
+      traefik.http.routers.traefik_https.tls.certResolver: le
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/opt/traefik/acme.json:/acme.json"

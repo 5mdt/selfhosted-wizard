@@ -1,0 +1,33 @@
+---
+# x86_64
+# aarch64
+
+- name: Set deploy to true if needed for socks5_proxy
+  ansible.builtin.set_fact:
+    deploy_socks5_proxy_state: present
+  when: deploy_socks5_proxy_proxy | bool
+
+- name: Deploy socks5_proxy
+  community.docker.docker_compose:
+    definition:
+      version: '3'
+      networks:
+        traefik_default:
+          external: true
+      services:
+        server:
+          container_name: socks5_server
+          environment:
+            PROXY_PASSWORD: "{{ deploy_socks5_proxy_password }}"
+            PROXY_USER: "{{ deploy_socks5_proxy_user }}"
+          image: "serjs/go-socks5-proxy:{{ deploy_socks5_proxy_version }}"
+          labels:
+            com.centurylinklabs.watchtower.enable: 'true'
+          networks:
+            - traefik_default
+          ports:
+            - 1080:1080
+          restart: always
+    project_name: socks5_proxy
+    remove_orphans: true
+    state: "{{ deploy_socks5_proxy_state }}"

@@ -1,0 +1,25 @@
+---
+# x86_64
+# aarch64
+
+
+- name: Create directory for n8n
+  ansible.builtin.file:
+    dest: /opt/n8n/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Generate docker-compose file for n8n
+  ansible.builtin.template:
+    dest: /opt/n8n/docker-compose.yml
+    mode: 0644
+    owner: root
+    validate: docker-compose -f %s pull
+    src: n8n/docker-compose.yml.j2
+
+- name: Deploy n8n
+  community.docker.docker_compose:
+    project_src: /opt/n8n
+    remove_orphans: true
+    state: present

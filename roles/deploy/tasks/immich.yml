@@ -1,0 +1,43 @@
+---
+# x86_64
+
+- name: Create directory for immich
+  ansible.builtin.file:
+    dest: /opt/immich/
+    mode: 0744
+    owner: root
+    state: directory
+
+- name: Generate docker-compose file for immich
+  ansible.builtin.template:
+    dest: /opt/immich/docker-compose.yml
+    mode: 0644
+    owner: root
+    src: immich/docker-compose.yml.j2
+
+- name: Generate .env file for immich
+  ansible.builtin.template:
+    dest: /opt/immich/.env
+    mode: 0644
+    owner: root
+    src: immich/env.j2
+
+- name: Deploy immich
+  community.docker.docker_compose:
+    project_src: /opt/immich
+    remove_orphans: true
+    state: present
+
+- name: Fix owner of folder
+  ansible.builtin.file:
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    recurse: true
+  loop:
+    - dest: /data/immich/immich-media
+      owner: 33
+    - dest: /data/immich/immich-cache
+      owner: 999
+    - dest: /data/immich/immich-db
+      owner: 999

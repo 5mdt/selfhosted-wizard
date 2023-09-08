@@ -1,0 +1,74 @@
+---
+networks:
+  semaphore:
+  traefik_default:
+    external: true
+services:
+  postgres:
+    networks:
+      - semaphore
+    restart: always
+    image: postgres:14
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    volumes:
+     - /opt/semaphore/postgres:/var/lib/postgresql/data
+    environment:
+     POSTGRES_USER: semaphore
+     POSTGRES_PASSWORD: semaphore
+     POSTGRES_DB: semaphore
+
+  semaphore:
+    networks:
+      - traefik_default
+      - semaphore
+    restart: always
+    image: semaphoreui/semaphore:{{ deploy_semaphore_version }}
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+      traefik.docker.network: traefik_default
+      traefik.enable: true
+      traefik.http.routers.semaphore.entrypoints: websecure
+      traefik.http.routers.semaphore.rule: Host(`{{ deploy_semaphore_hostname }}`)
+      traefik.http.routers.semaphore.service: semaphore
+      traefik.http.routers.semaphore.tls: true
+      traefik.http.routers.semaphore.tls.certresolver: le
+      traefik.http.services.semaphore.loadbalancer.server.port: 3000
+    environment:
+      ANSIBLE_HOST_KEY_CHECKING: \"False\"
+      SEMAPHORE_ACCESS_KEY_ENCRYPTION: {{ deploy_semaphore_access_key_encryption }}
+      SEMAPHORE_ADMIN_EMAIL: admin@localhost
+      SEMAPHORE_ADMIN_NAME: admin
+      SEMAPHORE_ADMIN_PASSWORD: {{ deploy_semaphore_admin_password }}
+      SEMAPHORE_ADMIN: admin
+      SEMAPHORE_DB_DIALECT: postgres
+      SEMAPHORE_DB_HOST: postgres
+      SEMAPHORE_DB_PASS: semaphore
+      SEMAPHORE_DB_PORT: 5432
+      SEMAPHORE_DB_USER: semaphore
+      SEMAPHORE_DB: semaphore
+      SEMAPHORE_LDAP_ACTIVATED: 'no'
+      SEMAPHORE_LDAP_DN_BIND: 'uid=bind_user,cn=users,cn=accounts,dc=local,dc=shiftsystems,dc=net'
+      SEMAPHORE_LDAP_DN_SEARCH: 'dc=local,dc=example,dc=com'
+      SEMAPHORE_LDAP_HOST: dc01.local.example.com
+      SEMAPHORE_LDAP_NEEDTLS: 'yes'
+      SEMAPHORE_LDAP_PASSWORD: 'ldap_bind_account_password'
+      SEMAPHORE_LDAP_PORT: '636'
+      SEMAPHORE_LDAP_SEARCH_FILTER: "(\u0026(uid=%s)(memberOf=cn=ipausers,cn=groups,cn=accounts,dc=local,dc=example,dc=com))"
+      SEMAPHORE_PLAYBOOK_PATH: /tmp/semaphore/
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "3"
+        max-size: "1m"
+    depends_on:
+      - postgres
+    extra_hosts:
+      - "{{ inventory_hostname }}:{{ public_server_ip.content | trim }}"
+
+version: "3"

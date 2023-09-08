@@ -1,0 +1,14 @@
+---
+
+- name: Deploy Infrastucture
+  hosts: all
+  become: true
+  gather_facts: true
+
+  roles:
+    - prepare
+    - geerlingguy.github-users
+    - geerlingguy.security
+    - remove_artifacts
+    - geerlingguy.docker
+    - deploy

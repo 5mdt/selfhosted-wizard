@@ -1,0 +1,184 @@
+---
+default_dns_zone: "localhost"
+deploy_blocky: true
+deploy_blocky_config: |
+  ---
+  # default blocky config from [documentation](https://0xerr0r.github.io/blocky/installation/)
+  upstream:
+    default:
+      - 46.182.19.48
+      - 80.241.218.68
+      - https://dns.digitale-gesellschaft.ch/dns-query
+      - tcp-tls:fdns1.dismail.de:853
+  blocking:
+    blackLists:
+      ads:
+        - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+    clientGroupsBlock:
+      default:
+        - ads
+  port: 53
+  httpPort: 4000
+deploy_blocky_hostname: "blocky.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_blocky_version: latest
+deploy_castopod: false
+deploy_castopod_cp_analytic_salt: FIXME
+deploy_castopod_hostname: "castopod.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_castopod_version: latest
+deploy_cronicle: false
+deploy_cronicle_hostname: "cronicle.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_cronicle_version: latest
+deploy_freshrss: false
+deploy_freshrss_hostname: "freshrss.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_freshrss_version: latest
+deploy_glances: false
+deploy_glances_hostname: "glances.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_glances_state: absent
+deploy_glances_version: latest
+deploy_homepage: false
+deploy_homepage_bookmarks: |
+  ---
+  # For configuration options and examples, please see:
+  # https://gethomepage.dev/en/configs/bookmarks
+
+  - Developer:
+      - Github:
+          - abbr: GH
+            href: https://github.com/
+
+  - Social:
+      - Reddit:
+          - abbr: RE
+            href: https://reddit.com/
+
+  - Entertainment:
+      - YouTube:
+          - abbr: YT
+            href: https://youtube.com/
+deploy_homepage_docker: |
+  ---
+  # For configuration options and examples, please see:
+  # https://gethomepage.dev/en/configs/docker/
+
+  # my-docker:
+  #   host: 127.0.0.1
+  #   port: 2375
+
+  # my-docker:
+  #   socket: /var/run/docker.sock
+deploy_homepage_hostname: "homepage.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_homepage_services: |
+  ---
+  # For configuration options and examples, please see:
+  # https://gethomepage.dev/en/configs/services
+
+  - My First Group:
+      - My First Service:
+          description: Homepage is awesome
+          href: http://localhost/
+
+  - My Second Group:
+      - My Second Service:
+          description: Homepage is the best
+          href: http://localhost/
+
+  - My Third Group:
+      - My Third Service:
+          description: Homepage is 😎
+          href: http://localhost/
+deploy_homepage_settings: |
+  ---
+  # For configuration options and examples, please see:
+  # https://gethomepage.dev/en/configs/settings
+
+  providers:
+    openweathermap: openweathermapapikey
+    weatherapi: weatherapiapikey
+deploy_homepage_version: latest
+deploy_homepage_widgets: |
+  ---
+  # For configuration options and examples, please see:
+  # https://gethomepage.dev/en/configs/widgets
+
+  - resources:
+      cpu: true
+      disk: /
+      memory: true
+
+  - search:
+      provider: duckduckgo
+      target: _blank
+deploy_immich: false
+deploy_immich_hostname: "immich.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_immich_version: release
+deploy_jellyfin: false
+deploy_jellyfin_hostname: "jellyfin.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_jellyfin_version: latest
+deploy_joplin: false
+deploy_joplin_hostname: "joplin.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_joplin_version: latest
+deploy_n8n: false
+deploy_n8n_hostname: "n8n.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_n8n_pg_password: postgres
+deploy_n8n_version: latest
+deploy_nextcloud: false
+deploy_nextcloud_admin_password: FIXME
+deploy_nextcloud_hostname: "nextcloud.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_nextcloud_version: latest
+deploy_openvpn: false
+deploy_redirects: false
+deploy_redirects_labels:
+  com.centurylinklabs.watchtower.enable: "true"
+  traefik.enable: true
+deploy_redirects_state: absent
+deploy_rss_bridge: false
+deploy_rss_bridge_hostname: "rss-bridge.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_rss_bridge_state: absent
+deploy_rss_bridge_version: latest
+deploy_rss_bridge_whitelist: |
+  FeedMerge
+  Filter
+  Reddit
+  Telegram
+  ThePirateBay
+  Twitch
+  Twitter
+  Vk
+  Youtube
+deploy_semaphore_access_key_encryption: FIXME
+deploy_semaphore_admin_password: FIXME
+deploy_semaphore_version: latest
+deploy_semaphore: false
+deploy_socks5_proxy_hostname: "socks5-proxy.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_socks5_proxy_password: user
+deploy_socks5_proxy_proxy: false
+deploy_socks5_proxy_state: absent
+deploy_socks5_proxy_user: FIXME
+deploy_socks5_proxy_version: latest
+deploy_tgvkbot: false
+deploy_tgvkbot_environment: |
+  ALLOWED_USER_IDS=FIXME # telegram user id
+  BOT_TOKEN=FIXME # telegram bot id
+  POSTGRES_DB=tgvkbot
+  POSTGRES_PASSWORD=postgres
+  VK_APP_ID=FIXME # VK Application ID
+deploy_tgvkbot_version: latest
+deploy_traefik: false
+deploy_traefik_hostname: "traefik.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_traefik_version: latest
+deploy_vaultwarden: false
+deploy_vaultwarden_hostname: "vaultwarden.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_vaultwarden_version: latest
+deploy_watchtower: true
+deploy_watchtower_state: absent
+deploy_watchtower_version: latest
+deploy_yacht: false
+deploy_yacht_hostname: "yacht.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_yacht_version: latest
+deploy_yopass: false
+deploy_yopass_hostname: "yopass.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_yopass_version: latest
+deploy_mailu_hostname: "mailu.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_kuma_hostname: "kuma.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
+deploy_trefik_email: "FIXME@example.com"
+deploy_semaphore_hostname: "semaphore.{{ inventory_hostname_short }}.{{ default_dns_zone }}"
