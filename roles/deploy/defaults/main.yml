@@ -1,6 +1,6 @@
 ---
 default_dns_zone: "localhost"
-deploy_blocky: true
+deploy_blocky: false
 deploy_blocky_config: |
   ---
   # default blocky config from [documentation](https://0xerr0r.github.io/blocky/installation/)
