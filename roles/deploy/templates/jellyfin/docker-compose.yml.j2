@@ -36,12 +36,12 @@ services:
       options:
         max-file: "3"
         max-size: "1m"
-  spotdl-telegram-sidecar:
-    build: ./docker/spotdl-telegram-sidecar/
-    environment:
-      SPOTIFY_CLIENT_ID: $SPOTIFY_CLIENT_ID
-      SPOTIFY_CLIENT_SECRET: $SPOTIFY_CLIENT_SECRET
-      TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
-    volumes:
-      - /data/jellyfin/media/music:/music
+  # spotdl-telegram-sidecar:
+  #   build: ./docker/spotdl-telegram-sidecar/
+  #   environment:
+  #     SPOTIFY_CLIENT_ID: $SPOTIFY_CLIENT_ID
+  #     SPOTIFY_CLIENT_SECRET: $SPOTIFY_CLIENT_SECRET
+  #     TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
+  #   volumes:
+  #     - /data/jellyfin/media/music:/music
 version: '3.5'
